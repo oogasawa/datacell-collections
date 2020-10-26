@@ -95,6 +95,11 @@ export class DuplicatedKeyUniqueValueHashMap<K, V> {
     }
 
 
+    removeKey(key: K): void {
+        this.entity.remove(key);
+    }
+
+
     size(): number {
         let result = 0;
         const ks: ImmutableSet<K> = this.entity.keySet();
