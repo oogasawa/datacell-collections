@@ -4,6 +4,9 @@ import 'mocha';
 
 import { DuplicatedKeyUniqueValueHashMap } from "../../src/lib/DuplicatedKeyUniqueValueHashMap";
 
+import * as log4js from "log4js";
+const logger = log4js.getLogger();
+
 
 describe('DuplicatedKeyUniqueValueHashMap', () => {
 
@@ -34,6 +37,15 @@ describe('DuplicatedKeyUniqueValueHashMap', () => {
             const hashmap = new DuplicatedKeyUniqueValueHashMap<string, string>();
             hashmap.put("A001", "value1");
             hashmap.put("A001", "value2");
+
+
+            // logger.level = "debug";
+            hashmap.keySet().forEach((k) => {
+                hashmap.get(k).forEach((v) => {
+                    logger.debug(k + "\t" + v);
+                })
+            });
+            logger.level = "error";
             expect(hashmap.size()).to.equal(2);
         });
 
@@ -72,7 +84,7 @@ describe('DuplicatedKeyUniqueValueHashMap', () => {
             hashmap.removeKey("A001");
             expect(hashmap.containsKey("A001")).to.be.false;
             expect(hashmap.containsKey("A002")).to.be.true;
-            expect(hashmap.keySet().size()).to.equal(1);
+            expect(hashmap.keySet().size).to.equal(1);
         });
 
     });

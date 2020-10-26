@@ -1,49 +1,26 @@
 
-import {
-    HashMap,
-    ImmutableSet,
-    TreeSet,
-    Comparator,
-    JIterator
-} from "typescriptcollectionsframework";
-
-
-import { StringComparator } from "./StringComparator";
-
-
 
 
 export class DuplicatedKeyUniqueValueHashMap<K, V> {
 
-    entity: HashMap<K, TreeSet<V>>;
 
+    entity: Map<K, Set<V>>;
 
     constructor() {
-        this.entity = new HashMap<K, TreeSet<V>>();
+        this.entity = new Map();
     }
 
 
-
-    get(key: K): TreeSet<V> {
+    get(key: K): Set<V> {
         return this.entity.get(key);
-    }
-
-
-
-    set(key: K, value: V): void {
-        const valList = new TreeSet<V>(new StringComparator());
-        valList.add(value);
-
-        // preexisting values are removed and the new value is put.
-        this.entity.put(key, valList);
     }
 
 
     put(key: K, value: V): void {
 
-        if (this.entity.containsKey(key)) {
-            const vs: TreeSet<V> = this.entity.get(key);
-            if (vs.contains(value)) {
+        if (this.entity.has(key)) {
+            const vs: Set<V> = this.entity.get(key);
+            if (vs.has(value)) {
                 return;
             }
             else {
@@ -51,9 +28,9 @@ export class DuplicatedKeyUniqueValueHashMap<K, V> {
             }
         }
         else { // this map does not have the given key.
-            const valList = new TreeSet<V>(new StringComparator());
+            const valList = new Set<V>();
             valList.add(value);
-            this.entity.put(key, valList);
+            this.entity.set(key, valList);
         }
     }
 
@@ -64,56 +41,54 @@ export class DuplicatedKeyUniqueValueHashMap<K, V> {
 
 
     containsKey(key: K): boolean {
-        return this.entity.containsKey(key);
+        return this.entity.has(key);
     }
 
 
 
     getValues(key: K): V[] {
         const result: V[] = [];
-        const set: TreeSet<V> = this.get(key);
+        const set: Set<V> = this.get(key);
 
-        for (const iter: JIterator<V>
-            = set.iterator();
-            iter.hasNext();) {
-
-            result.push(iter.next());
-        }
-
+        set.forEach((elem) => {
+            result.push(elem);
+        });
 
         return result;
     }
 
 
     isEmpty(): boolean {
-        return this.entity.isEmpty();
+        return this.entity.size === 0;
     }
 
 
-    keySet(): ImmutableSet<K> {
-        return this.entity.keySet();
+    keySet(): Set<K> {
+        const result = new Set<K>();
+        this.entity.forEach((v, k, m) => {
+            result.add(k);
+        });
+        return result;
     }
 
 
     removeKey(key: K): void {
-        this.entity.remove(key);
+        this.entity.delete(key);
     }
 
 
+    /** Returns a number of (key, value) pairs in this map.
+     */
     size(): number {
-        let result = 0;
-        const ks: ImmutableSet<K> = this.entity.keySet();
-        for (const iter: JIterator<K> = ks.iterator();
-            iter.hasNext();) {
+        let counter = 0;
+        this.entity.forEach((v, k, m) => {
+            this.entity.get(k).forEach((val) => {
+                counter++;
+            })
+        });
 
-            const key: K = iter.next();
-            const vs: TreeSet<V> = this.entity.get(key);
-            for (const iter2: JIterator<V> = vs.iterator();
-                iter2.hasNext(); iter2.next()) {
-
-                result++;
-            }
-        }
-        return result;
+        return counter;
     }
+
+
 }
