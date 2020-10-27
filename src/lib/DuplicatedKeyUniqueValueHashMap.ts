@@ -65,9 +65,14 @@ export class DuplicatedKeyUniqueValueHashMap<K, V> {
 
     keySet(): Set<K> {
         const result = new Set<K>();
-        this.entity.forEach((v, k, m) => {
-            result.add(k);
-        });
+        const iter: IterableIterator<K> = this.entity.keys();
+        let obj: IteratorResult<K> = iter.next();
+
+        while (!obj.done) {
+            result.add(obj.value);
+            obj = iter.next();
+        }
+
         return result;
     }
 
